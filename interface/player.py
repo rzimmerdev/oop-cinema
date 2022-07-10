@@ -1,4 +1,4 @@
-import os
+import threading
 import tkinter as tk
 from enum import Enum
 
@@ -11,13 +11,13 @@ class Position(Enum):
     TOP = (0.0, 0.5)
     CENTER = (0.5, 0.5)
     BOTTOM = (1, 0.5)
-    LEFT = (0.5, 0)
-    RIGHT = (0.5, 0.5)
+    LEFT = (0.5, 1)
+    RIGHT = (0.5, 0)
 
 
 class VideoPlayer:
     def __init__(self, window_root, window_canvas, path,
-                 size: tuple = (640, 360), pos: Position = Position.TOP, fps: int = 15):
+                 size: tuple = (640, 360), pos: Position = Position.CENTER, fps: int = 15):
         self.root = window_root
         self.canvas = window_canvas
         self.path = path
@@ -25,8 +25,10 @@ class VideoPlayer:
         self.pos = pos
         self.size = size
         self.fps = fps
+
         self._videobuffer = None
         self._frame = None
+        self._is_paused = False
 
     def is_valid(self):
         return self._videobuffer.isOpened()
@@ -39,7 +41,7 @@ class VideoPlayer:
         self._videobuffer = cv2.VideoCapture(url)
 
         if not self.is_valid():
-            raise ValueError("Invalid URL for video file.", self._videobuffer)
+            raise ValueError("Invalid URL for video file.", url)
 
         return self.__get_shape()
 
@@ -51,6 +53,19 @@ class VideoPlayer:
                 return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         return None
 
+    def show_frame(self):
+        # Read next frame from video source buffer
+        frame = self.get_frame()
+        # Test if next frame could be read, else quit video player
+        offset_x = (self.canvas.winfo_width() - self.size[0]) * self.pos.value[0]
+        offset_y = (self.canvas.winfo_height() - self.size[1]) * self.pos.value[1]
+
+        if frame is not None:
+            self._frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
+            self.canvas.create_image(offset_x, offset_y, image=self._frame, anchor=tk.NW)
+            return True
+        return False
+
     def play(self):
         """Recursive method for loading sequence of frames from Video buffer, displaying them to the
         root window, within the canvas element. Calls end when buffer is empty.
@@ -60,21 +75,15 @@ class VideoPlayer:
             >>> movie.open("Planet_of_the_Apes.mp4")
             >>> movie.play()
         """
-        # Read next frame from video source buffer
-        frame = self.get_frame()
-        # Test if next frame could be read, else quit video player
-
-        offset_y = (self.canvas.winfo_width() - self.size[0]) * self.pos.value[0]
-        offset_x = (self.canvas.winfo_height() - self.size[1]) * self.pos.value[1]
-
-        if frame is not None:
-            self._frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
-            self.canvas.create_image(offset_x, offset_y, image=self._frame, anchor=tk.NW)
-        else:
-            return
-
+        while not self._is_paused and self.show_frame():
+            pass
         # Recursive call to play, displaying next frame from video buffer
-        self.root.after(self.fps, self.play)
+
+    def toggle(self):
+        self._is_paused = not self._is_paused
+
+        if not self._is_paused:
+            self.play()
 
     def __del__(self):
         self._videobuffer.release() if self.is_valid() else None
