@@ -3,43 +3,64 @@
 # @About: Implements call functions for creating and managing the cinema interface.
 # Should only be called by parent methods, as no functionality is managed herein.
 #
-import threading
 import tkinter as tk
 from tkinter import ttk
 
-from manager.manager import Ticket
-from player import VideoPlayer, Position
+from content.movie import Movie
+from player import VideoPlayer
 
 
 class ViewFactory:
     def __init__(self, franchise: str = None):
         self.franchise = franchise
         self.root = tk.Tk()
+        self.canvas = tk.Canvas(self.root, width=1920, height=1080)
 
-    def show(self, canvas):
-        canvas.pack()
+    def show(self):
+        self.canvas.pack(anchor=tk.NW)
         self.root.title(self.franchise)
         self.root.mainloop()
 
-    def play_video(self, file, src_path):
-        canvas = tk.Canvas(self.root, width=1920, height=1080)
-
-        movie_player = VideoPlayer(self.root, canvas, src_path, fps=15)
+    def play_src(self, file, src_path):
+        movie_player = VideoPlayer(self.root, self.canvas, src_path, fps=15)
         movie_player.open(file)
 
-        button = ttk.Button(self.root, text="Play/Pause", command=movie_player.toggle)
-        button.pack(side=tk.TOP, pady=5)
+        pause_btn = ttk.Button(self.root, text="Play/Pause", command=movie_player.toggle)
+        restart_btn = ttk.Button(self.root, text="Reiniciar", command=lambda: movie_player.open(file))
+        exit_btn = ttk.Button(self.root, text="Exit", command=self.root.destroy)
 
-        thread = threading.Thread(target=movie_player.play)
-        thread.start()
+        pause_btn.pack(side=tk.TOP, pady=5)
+        restart_btn.pack(side=tk.TOP, pady=2)
+        exit_btn.pack(pady=5)
 
-        return canvas
+        movie_player.play()
+
+    def movies_to_poster(self, movies: list[Movie]) -> tk.Frame:
+
+        print(Movie.__dict__.keys())
+        posters = tk.Frame(self.root)
+
+        for movie in movies:
+
+            movie_frame = tk.Frame(posters)
+            name = tk.Label(movie_frame, text="Macaco")
+            name.pack()
+            movie_frame.pack()
+
+        return posters
+
+    def show_movies(self, movies: list[Movie] = None):
+        if not movies:
+            movies = list()
+        poster_list = self.movies_to_poster(movies)
+        poster_list.pack()
 
 
 def main():
     cinema1 = ViewFactory(franchise="CinePlex")
-    video = cinema1.play_video("water.mkv", "../films/")
-    cinema1.show(video)
+    cinema1.play_src("water.mkv", "films/")
+    cinema1.show_movies()
+    cinema1.show()
 
 
 if __name__ == "__main__":

@@ -16,11 +16,11 @@ class Position(Enum):
 
 
 class VideoPlayer:
-    def __init__(self, window_root, window_canvas, path,
+    def __init__(self, window_root, canvas, path,
                  size: tuple = (640, 360), pos: Position = Position.CENTER, fps: int = 15):
         self.root = window_root
-        self.canvas = window_canvas
         self.path = path
+        self.canvas = canvas
 
         self.pos = pos
         self.size = size
@@ -75,9 +75,10 @@ class VideoPlayer:
             >>> movie.open("Planet_of_the_Apes.mp4")
             >>> movie.play()
         """
-        while not self._is_paused and self.show_frame():
-            pass
-        # Recursive call to play, displaying next frame from video buffer
+        if self._is_paused:
+            return
+        playing = self.show_frame()
+        self.root.after(self.fps, self.play)
 
     def toggle(self):
         self._is_paused = not self._is_paused
