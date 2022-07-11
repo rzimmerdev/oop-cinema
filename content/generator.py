@@ -10,20 +10,21 @@ class MovieScheduler:
     def __init__(self):
         self.scheduled_movies: List[Movie] = list()
 
-    def add(self, name: str, filename:str, duration: int, director: str, age_restricted: bool, start_time: int) -> None:
-        new_movie = ScheduledMovie(name, filename, duration, director, age_restricted, start_time)
+    def add(self, name, filename, description, start_time, duration,
+            thumbnail, director, age_restricted):
+
+        new_movie = ScheduledMovie(name, filename, description, start_time, duration,
+                                   thumbnail, director, age_restricted)
         self.scheduled_movies.append(new_movie)
 
-    def remove(self, name: str) -> None:
+    def remove(self, name: str):
         self.scheduled_movies = [movie for movie in self.scheduled_movies if movie.name != name]
 
     def get(self, name: str) -> Optional[Movie]:
         for movie in self.scheduled_movies:
             if movie.name == name:
                 return movie
-        
         return None
-
 
 
 class MoviePlayer:
@@ -32,5 +33,5 @@ class MoviePlayer:
         self.cinema = cinema
 
     def play(self):
-        video = self.cinema.play_video(self.movie.filename, "../films/")
-        self.cinema.show(video)
+        movie = self.cinema.play_src(self.movie.filename, "films/")
+        self.cinema.show()

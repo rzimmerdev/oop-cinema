@@ -1,13 +1,17 @@
 from typing import Optional
 
+
 class Movie:
-    def __init__(self, name: str, filename:str, duration: int, director: str, age_restricted: bool, start_time: int):
+    def __init__(self, name: str, filename: str, description: str, start_time: int, duration: int,
+                 thumbnail: str = None, director: str = None, age_restricted: bool = None):
         self.name = name
         self.filename = filename
+        self.description = description
+        self.start_time = start_time
         self.duration = duration
+        self.thumbnail = thumbnail
         self.director = director
         self.age_restricted = age_restricted
-        self.start_time = start_time
         self.rating = None
         self.__ratings = []
 
@@ -21,6 +25,7 @@ class Movie:
 
         # Compute new rates' mean
         self.rating = sum(rates) / len(rates)
+        return None
 
 
 class Rating:
@@ -33,11 +38,14 @@ class Rating:
             return f"({self.rate}.0) '{self.comment}'"
 
         return f"({self.rate}.0)"
-        
+
 
 class ScheduledMovie(Movie):
-    def __init__(self, name: str, filename:str, duration: int, director: str, age_restricted: bool, start_time: int):
-        super().__init__(name, filename, duration, director, age_restricted, start_time)
+    def __init__(self, name: str, filename: str, description: str, start_time: int, duration: int,
+                 thumbnail: str = None, director: str = None, age_restricted: bool = None):
+        super().__init__(name, filename, description, start_time, duration,
+                         thumbnail, director, age_restricted)
+
 
 class CurrentMovie(Movie):
     pass
