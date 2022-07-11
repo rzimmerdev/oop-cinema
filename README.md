@@ -1,3 +1,6 @@
+OBS: Não foi usada a biblioteca PySimpleGUI com o intuito de proporcionar um aprendizado maior - usando a biblioteca tkinter padrão,
+tivemos uma interação maior com os métodos nativos e as dificuldades de se implementar um gerenciador de gráficos do zero.
+
 # Proposta inicial projeto final - POO
 
 **Disciplina:** SSC0103 — Programação Orientada a Objetos\
