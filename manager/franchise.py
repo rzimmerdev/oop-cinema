@@ -5,6 +5,7 @@ class FranchiseFactory:
 
 
 class PrivateFranchise(FranchiseFactory):
+    #guarda os filmes, o filme atual e os ingressos
     pass
 
 
