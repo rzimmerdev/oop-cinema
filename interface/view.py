@@ -13,7 +13,8 @@ from interface.player import VideoPlayer
 
 
 class ViewFactory:
-    def __init__(self, franchise: str = None, background="files/background.jpeg"):
+    def __init__(self, manager, franchise: str = None, background="files/background.jpeg"):
+        self.manager = manager
         self.franchise = franchise
         self.root = tk.Tk()
         self.root.geometry("1920x1080")
@@ -46,20 +47,6 @@ class ViewFactory:
         screen.grid(row=0, column=1, sticky=tk.W)
 
     def show_movies(self, movies: list[Movie] = None):
-        posters = ttk.Frame(self.root, width=280)
-        posters.grid(row=0, column=0, sticky=tk.W)
-
-        posters_canvas = tk.Canvas(posters, height=1080)
-        posters_canvas.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1, padx=10)
-
-        scroll = ttk.Scrollbar(posters, orient="vertical", command=posters_canvas.yview)
-        scroll.pack(side=tk.LEFT, fill=tk.Y)
-
-        posters_canvas.configure(yscrollcommand=scroll.set)
-        posters_canvas.bind('<Configure>', lambda e: posters_canvas.configure(scrollregion=posters_canvas.bbox("all")))
-
-        scroll_frame = ttk.Frame(posters_canvas)
-        posters_canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
         pv = PosterView(self.root)
         pv.movies_to_poster(movies)
 
@@ -116,34 +103,3 @@ class PosterView(ttk.Frame):
 
 class TicketView(ttk.Frame):
     pass
-
-
-def main():
-    screen = ViewFactory("CineMark")
-    movies = [
-        Movie("Minions: Rise of Gru", "water.mkv",
-              "In the 1970s, young Gru tries to join a group of supervillains, "
-              "called the Vicious 6 after they oust their leader",
-              1071, 141, thumbnail="minions.jpg", age_restricted=False),
-
-        Movie("Despicable Me 3", "water.mkv",
-              "Gru meets his long-lost twin brother Dru, after getting fired from the Anti-Villain League.",
-              842, 155, thumbnail="gru.jpg", age_restricted=False),
-
-        Movie("Minions: Rise of Gru", "water.mkv",
-              "In the 1970s, young Gru tries to join a group of supervillains, "
-              "called the Vicious 6 after they oust their leader",
-              1071, 141, thumbnail="minions.jpg", age_restricted=False),
-
-        Movie("Minions: Rise of Gru", "water.mkv",
-              "In the 1970s, young Gru tries to join a group of supervillains, "
-              "called the Vicious 6 after they oust their leader",
-              1071, 141, thumbnail="minions.jpg", age_restricted=False)
-    ]
-    screen.show_movies(movies)
-    screen.play_src(movies[0].filename, "films/")
-    screen.show()
-
-
-if __name__ == "__main__":
-    main()
