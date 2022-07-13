@@ -27,7 +27,7 @@ class Cashier:
 
         return ticket
 
-    def validate(self, ticket) -> Boolean:
+    def validate(self, ticket) -> bool:
         '''valida um ticket e remove ele da lista de tickets'''
         if ticket in self.sold_tickets :
             self.sold_tickets.remove(ticket)
