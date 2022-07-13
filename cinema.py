@@ -23,9 +23,11 @@ def main():
                        "called the Vicious 6 after they oust their leader",
                        1071, 141, thumbnail="minions.jpg", age_restricted=False)
 
-    ticket = cinemark.sell_ticket(32.85, "Despicable Me 3")
+    ticket = cinemark.sell_ticket(3429, 32.85, "Despicable Me 3")
     cinemark.play_movie(ticket)
     cinemark.facade.show()
+
+    cinemark.show()
 
 
 if __name__ == "__main__":
