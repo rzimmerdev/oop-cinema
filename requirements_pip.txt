@@ -1,0 +1,5 @@
+certifi==2022.6.15
+imageio @ file:///home/conda/feedstock_root/build_artifacts/imageio_1654071881944/work
+imageio-ffmpeg @ file:///home/conda/feedstock_root/build_artifacts/imageio-ffmpeg_1649960641006/work
+numpy==1.16.6
+Pillow==9.0.1
