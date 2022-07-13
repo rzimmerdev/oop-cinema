@@ -1,5 +1,5 @@
-import threading
 import tkinter as tk
+from tkinter import ttk
 from enum import Enum
 
 import cv2 as cv2
@@ -16,15 +16,14 @@ class Position(Enum):
 
 
 class VideoPlayer:
-    def __init__(self, window_root, canvas, path,
-                 size: tuple = (640, 360), pos: Position = Position.CENTER, fps: int = 15):
-        self.root = window_root
+    def __init__(self, screen, path, fps: int = 15, size: tuple = (640, 360), pos: Position = Position.CENTER):
         self.path = path
-        self.canvas = canvas
+        self.canvas = tk.Canvas(screen, width=size[0], height=size[1])
+        self.canvas.pack()
 
+        self.fps = fps
         self.pos = pos
         self.size = size
-        self.fps = fps
 
         self._videobuffer = None
         self._frame = None
@@ -57,12 +56,10 @@ class VideoPlayer:
         # Read next frame from video source buffer
         frame = self.get_frame()
         # Test if next frame could be read, else quit video player
-        offset_x = (self.canvas.winfo_width() - self.size[0]) * self.pos.value[0]
-        offset_y = (self.canvas.winfo_height() - self.size[1]) * self.pos.value[1]
 
         if frame is not None:
             self._frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
-            self.canvas.create_image(offset_x, offset_y, image=self._frame, anchor=tk.NW)
+            self.canvas.create_image(0, 0, image=self._frame, anchor=tk.NW)
             return True
         return False
 
@@ -75,16 +72,31 @@ class VideoPlayer:
             >>> movie.open("Planet_of_the_Apes.mp4")
             >>> movie.play()
         """
-        if self._is_paused:
+        if self._is_paused or not self.show_frame():
             return
-        playing = self.show_frame()
-        self.root.after(self.fps, self.play)
+        self.canvas.after(self.fps, self.play)
 
     def toggle(self):
         self._is_paused = not self._is_paused
 
         if not self._is_paused:
             self.play()
+
+    def show_tools(self, screen, file, root: tk.Tk):
+        tool_frame = tk.Frame(screen)
+        tool_frame.pack(fill=tk.X, side=tk.TOP)
+
+        pause_btn = ttk.Button(tool_frame, text="Play/Pause", command=self.toggle)
+        restart_btn = ttk.Button(tool_frame, text="Reiniciar", command=lambda: self.open(file))
+        exit_btn = ttk.Button(tool_frame, text="Exit", command=root.destroy)
+
+        tool_frame.columnconfigure(0, weight=1)
+        tool_frame.columnconfigure(1, weight=1)
+        tool_frame.columnconfigure(2, weight=1)
+
+        pause_btn.grid(row=0, column=0)
+        restart_btn.grid(row=0, column=1)
+        exit_btn.grid(row=0, column=2)
 
     def __del__(self):
         self._videobuffer.release() if self.is_valid() else None
