@@ -14,16 +14,14 @@ class Ticket:
 
 class Cashier:
     def __init__(self):
-        self.i = 0
         self.money_amount = 0.0
         self.sold_tickets = list()
 
-    def sell(self, price: float, movie: Movie) -> Ticket:
-        ticket = Ticket(self.i, movie)
+    def sell(self, identifier: int, price: float, movie: Movie) -> Ticket:
+        ticket = Ticket(identifier, movie)
         
         self.money_amount += price
         self.sold_tickets.append(ticket)
-        self.i += 1
 
         return ticket
 

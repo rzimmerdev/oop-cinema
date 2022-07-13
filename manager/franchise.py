@@ -12,17 +12,18 @@ class FranchiseFactory:
         self.opening_year = opening_year
 
         self.cinema = ViewFactory(name)
-        self.cinema.show()
+        
         self.movie_scheduler = MovieScheduler()
         self.cashier = Cashier()
         self.current_movie = None
 
-    def sell_ticket(self, price: float, movie_name: str) -> Ticket:
+    def sell_ticket(self, identifier: int, price: float, movie_name: str,) -> Ticket:
         '''recebe info e vende um ticket'''
-        return self.cashier.sell(price, self.movie_scheduler.get(movie_name))
+        return self.cashier.sell(identifier, price, self.movie_scheduler.get(movie_name))
 
     def play_movie(self, ticket: Ticket):
         if self.cashier.validate(ticket):
+            self.current_movie = ticket.movie
             self.cinema.play_src(ticket.movie.filename, "films/")
         else:
             raise Exception("Invalid Ticket")
@@ -33,14 +34,18 @@ class FranchiseFactory:
         self.cinema.show_movies()
         
     def remove_movie(self, name: str) -> None:
-        '''adiciona um filme e atualiza a interface grafica'''
+        '''remove um filme e atualiza a interface grafica'''
         self.movie_scheduler.remove(name)
         self.cinema.show_movies()
 
+    def show(self):
+        self.cinema.show()
 
 class PrivateFranchise(FranchiseFactory): 
-    pass
+    def __init__(self, name: str, opening_year: int):
+        super().__init__(name, opening_year)
 
 
 class PublicFranchise(FranchiseFactory):
-    pass
+    def __init__(self, name: str, opening_year: int):
+        super().__init__(name, opening_year)
