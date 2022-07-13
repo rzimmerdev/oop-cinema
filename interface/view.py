@@ -10,12 +10,10 @@ from PIL import Image, ImageTk
 
 from content.movie import Movie
 from interface.player import VideoPlayer
-from manager.manager import Ticket
 
 
 class ViewFactory:
-    def __init__(self, manager, franchise: str = None, background="files/background.jpeg"):
-        self.manager = manager
+    def __init__(self, franchise: str = None, background="files/background.jpeg"):
         self.franchise = franchise
         self.root = tk.Tk()
         self.root.geometry("1920x1080")
@@ -47,25 +45,6 @@ class ViewFactory:
         movie_player.play()
         screen.grid(row=0, column=1, sticky=tk.W)
 
-    def movies_to_poster(self, frame, movies: list[Movie]):
-        for row, movie in enumerate(movies):
-            movie_frame = ttk.Frame(frame)
-            thumbnail = ImageTk.PhotoImage(Image.open("posters/" + movie.thumbnail).resize((280, 280)))
-            image_label = ttk.Label(movie_frame, image=thumbnail)
-            image_label.image = thumbnail
-            image_label.grid(row=0, column=0)
-
-            name = ttk.Label(movie_frame, text=movie.name)
-            description = ttk.Label(movie_frame, text=movie.description, wraplength=280)
-            time = ttk.Label(movie_frame, text=str(movie.duration // 60) + ":" + "{:02d}".format(movie.duration % 60))
-            buy = ttk.Button(movie_frame, text="Buy Ticket!", command=self.manager.macaco)
-            name.grid(row=1, column=0)
-            description.grid(row=2, column=0)
-            time.grid(row=3, column=0)
-            buy.grid(row=4, column=0, pady=20)
-
-            movie_frame.grid(row=row, column=0, pady=(0, 40))
-
     def show_movies(self, movies: list[Movie] = None):
         posters = ttk.Frame(self.root, width=280)
         posters.grid(row=0, column=0, sticky=tk.W)
@@ -81,7 +60,8 @@ class ViewFactory:
 
         scroll_frame = ttk.Frame(posters_canvas)
         posters_canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
-        self.movies_to_poster(scroll_frame, movies)
+        pv = PosterView(self.root)
+        pv.movies_to_poster(movies)
 
 
 class MovieView(ttk.Frame):
@@ -97,5 +77,73 @@ class MovieView(ttk.Frame):
         self.grid(row=0, column=1, sticky=tk.W)
 
 
+class PosterView(ttk.Frame):
+    def __init__(self, root):
+        super().__init__(root)
+        self.grid(row=0, column=0, sticky=tk.W)
+
+        posters_canvas = tk.Canvas(self, height=1080)
+        posters_canvas.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1, padx=10)
+
+        scroll = ttk.Scrollbar(self, orient="vertical", command=posters_canvas.yview)
+        scroll.pack(side=tk.LEFT, fill=tk.Y)
+
+        posters_canvas.configure(yscrollcommand=scroll.set)
+        posters_canvas.bind('<Configure>', lambda e: posters_canvas.configure(scrollregion=posters_canvas.bbox("all")))
+
+        self.scroll_frame = ttk.Frame(posters_canvas)
+        posters_canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
+
+    def movies_to_poster(self, movies: list[Movie]):
+        for row, movie in enumerate(movies):
+            movie_frame = ttk.Frame(self.scroll_frame)
+            thumbnail = ImageTk.PhotoImage(Image.open("posters/" + movie.thumbnail).resize((280, 280)))
+            image_label = ttk.Label(movie_frame, image=thumbnail)
+            image_label.image = thumbnail
+            image_label.grid(row=0, column=0)
+
+            name = ttk.Label(movie_frame, text=movie.name)
+            description = ttk.Label(movie_frame, text=movie.description, wraplength=280)
+            time = ttk.Label(movie_frame, text=str(movie.duration // 60) + ":" + "{:02d}".format(movie.duration % 60))
+            buy = ttk.Button(movie_frame, text="Buy Ticket!")
+            name.grid(row=1, column=0)
+            description.grid(row=2, column=0)
+            time.grid(row=3, column=0)
+            buy.grid(row=4, column=0, pady=20)
+
+            movie_frame.grid(row=row, column=0, pady=(0, 40))
+
+
 class TicketView(ttk.Frame):
     pass
+
+
+def main():
+    screen = ViewFactory("CineMark")
+    movies = [
+        Movie("Minions: Rise of Gru", "water.mkv",
+              "In the 1970s, young Gru tries to join a group of supervillains, "
+              "called the Vicious 6 after they oust their leader",
+              1071, 141, thumbnail="minions.jpg", age_restricted=False),
+
+        Movie("Despicable Me 3", "water.mkv",
+              "Gru meets his long-lost twin brother Dru, after getting fired from the Anti-Villain League.",
+              842, 155, thumbnail="gru.jpg", age_restricted=False),
+
+        Movie("Minions: Rise of Gru", "water.mkv",
+              "In the 1970s, young Gru tries to join a group of supervillains, "
+              "called the Vicious 6 after they oust their leader",
+              1071, 141, thumbnail="minions.jpg", age_restricted=False),
+
+        Movie("Minions: Rise of Gru", "water.mkv",
+              "In the 1970s, young Gru tries to join a group of supervillains, "
+              "called the Vicious 6 after they oust their leader",
+              1071, 141, thumbnail="minions.jpg", age_restricted=False)
+    ]
+    screen.show_movies(movies)
+    screen.play_src(movies[0].filename, "films/")
+    screen.show()
+
+
+if __name__ == "__main__":
+    main()
