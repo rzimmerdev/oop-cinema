@@ -1,10 +1,10 @@
 # Classe para instanciar diversos tipos de franquias
 # franquia guarda os filmes, o filme atual e os ingressos
 
-from content.movie import *
-from content.generator import *
+#from content.movie import Movie
+from content.generator import MovieScheduler
 from interface.view import ViewFactory
-from manager.manager import *
+from manager.manager import Cashier, Ticket
 
 class FranchiseFactory:
     def __init__(self, name: str, opening_year: int):
@@ -30,8 +30,8 @@ class FranchiseFactory:
 
     def add_movie(self, name, filename, description, start_time, duration, thumbnail, age_restricted) -> None:
         '''adiciona um filme e atualiza a interface grafica'''
-        self.movie_scheduler.add(name, name, filename, description, start_time, duration, thumbnail, age_restricted)
-        self.cinema.show_movies()
+        self.movie_scheduler.add(name, filename, description, start_time, duration, thumbnail, age_restricted)
+        self.cinema.show_movies(self.movie_scheduler.scheduled_movies)
         
     def remove_movie(self, name: str) -> None:
         '''remove um filme e atualiza a interface grafica'''
