@@ -45,21 +45,10 @@ class ViewFactory:
         movie_player.play()
         screen.grid(row=0, column=1, sticky=tk.W)
 
-    def movies_to_poster(self, movies: list[Movie]) -> ttk.Frame:
-        posters = ttk.Frame(self.root, width=280)
-        posters_canvas = tk.Canvas(posters, height=1080)
-        posters_canvas.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1, padx=10)
-
-        scroll = ttk.Scrollbar(posters, orient="vertical", command=posters_canvas.yview)
-        scroll.pack(side=tk.LEFT, fill=tk.Y)
-
-        posters_canvas.configure(yscrollcommand=scroll.set)
-        posters_canvas.bind('<Configure>', lambda e: posters_canvas.configure(scrollregion=posters_canvas.bbox("all")))
-
-        scroll_frame = ttk.Frame(posters_canvas)
-        posters_canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
+    @staticmethod
+    def movies_to_poster(frame, movies: list[Movie]):
         for row, movie in enumerate(movies):
-            movie_frame = ttk.Frame(scroll_frame)
+            movie_frame = ttk.Frame(frame)
             thumbnail = ImageTk.PhotoImage(Image.open("posters/" + movie.thumbnail).resize((280, 280)))
             image_label = ttk.Label(movie_frame, image=thumbnail)
             image_label.image = thumbnail
@@ -75,13 +64,23 @@ class ViewFactory:
             buy.grid(row=4, column=0, pady=20)
 
             movie_frame.grid(row=row, column=0, pady=(0, 40))
-        return posters
 
     def show_movies(self, movies: list[Movie] = None):
-        if not movies:
-            return
-        posters = self.movies_to_poster(movies)
+        posters = ttk.Frame(self.root, width=280)
         posters.grid(row=0, column=0, sticky=tk.W)
+
+        posters_canvas = tk.Canvas(posters, height=1080)
+        posters_canvas.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1, padx=10)
+
+        scroll = ttk.Scrollbar(posters, orient="vertical", command=posters_canvas.yview)
+        scroll.pack(side=tk.LEFT, fill=tk.Y)
+
+        posters_canvas.configure(yscrollcommand=scroll.set)
+        posters_canvas.bind('<Configure>', lambda e: posters_canvas.configure(scrollregion=posters_canvas.bbox("all")))
+
+        scroll_frame = ttk.Frame(posters_canvas)
+        posters_canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
+        self.movies_to_poster(scroll_frame, movies)
 
 
 class MovieView(ttk.Frame):

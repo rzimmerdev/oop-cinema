@@ -12,7 +12,6 @@ class FranchiseFactory:
         self.opening_year = opening_year
 
         self.cinema = ViewFactory(name)
-        self.cinema.show()
         self.movie_scheduler = MovieScheduler()
         self.cashier = Cashier()
         self.current_movie = None
