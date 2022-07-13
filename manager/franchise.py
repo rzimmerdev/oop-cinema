@@ -11,7 +11,7 @@ class FranchiseFactory:
         self.name = name
         self.opening_year = opening_year
 
-        self.cinema = ViewFactory(name)
+        self.facade = ViewFactory(self, name)
         self.movie_scheduler = MovieScheduler()
         self.cashier = Cashier()
         self.current_movie = None
@@ -22,19 +22,22 @@ class FranchiseFactory:
 
     def play_movie(self, ticket: Ticket):
         if self.cashier.validate(ticket):
-            self.cinema.play_src(ticket.movie.filename, "films/")
+            self.facade.play_src(ticket.movie.filename, "films/")
         else:
             raise Exception("Invalid Ticket")
 
     def add_movie(self, name, filename, description, start_time, duration, thumbnail, director=None, age_restricted=None) -> None:
         """adiciona um filme e atualiza a interface grafica"""
         self.movie_scheduler.add(name, filename, description, start_time, duration, thumbnail, director, age_restricted)
-        self.cinema.show_movies(self.movie_scheduler.scheduled_movies)
+        self.facade.show_movies(self.movie_scheduler.scheduled_movies)
 
     def remove_movie(self, name: str) -> None:
         """adiciona um filme e atualiza a interface grafica"""
         self.movie_scheduler.remove(name)
-        self.cinema.show_movies(self.movie_scheduler.scheduled_movies)
+        self.facade.show_movies(self.movie_scheduler.scheduled_movies)
+
+    def macaco(self):
+        print("macaco")
 
 
 class PrivateFranchise(FranchiseFactory):

@@ -25,7 +25,7 @@ def main():
 
     ticket = cinemark.sell_ticket(32.85, "Despicable Me 3")
     cinemark.play_movie(ticket)
-    cinemark.cinema.show()
+    cinemark.facade.show()
 
 
 if __name__ == "__main__":

@@ -10,10 +10,12 @@ from PIL import Image, ImageTk
 
 from content.movie import Movie
 from interface.player import VideoPlayer
+from manager.manager import Ticket
 
 
 class ViewFactory:
-    def __init__(self, franchise: str = None, background="files/background.jpeg"):
+    def __init__(self, manager, franchise: str = None, background="files/background.jpeg"):
+        self.manager = manager
         self.franchise = franchise
         self.root = tk.Tk()
         self.root.geometry("1920x1080")
@@ -45,8 +47,7 @@ class ViewFactory:
         movie_player.play()
         screen.grid(row=0, column=1, sticky=tk.W)
 
-    @staticmethod
-    def movies_to_poster(frame, movies: list[Movie]):
+    def movies_to_poster(self, frame, movies: list[Movie]):
         for row, movie in enumerate(movies):
             movie_frame = ttk.Frame(frame)
             thumbnail = ImageTk.PhotoImage(Image.open("posters/" + movie.thumbnail).resize((280, 280)))
@@ -57,7 +58,7 @@ class ViewFactory:
             name = ttk.Label(movie_frame, text=movie.name)
             description = ttk.Label(movie_frame, text=movie.description, wraplength=280)
             time = ttk.Label(movie_frame, text=str(movie.duration // 60) + ":" + "{:02d}".format(movie.duration % 60))
-            buy = ttk.Button(movie_frame, text="Buy Ticket!")
+            buy = ttk.Button(movie_frame, text="Buy Ticket!", command=self.manager.macaco)
             name.grid(row=1, column=0)
             description.grid(row=2, column=0)
             time.grid(row=3, column=0)
@@ -98,34 +99,3 @@ class MovieView(ttk.Frame):
 
 class TicketView(ttk.Frame):
     pass
-
-
-def main():
-    screen = ViewFactory("CineMark")
-    movies = [
-        Movie("Minions: Rise of Gru", "water.mkv",
-              "In the 1970s, young Gru tries to join a group of supervillains, "
-              "called the Vicious 6 after they oust their leader",
-              1071, 141, thumbnail="minions.jpg", age_restricted=False),
-
-        Movie("Despicable Me 3", "water.mkv",
-              "Gru meets his long-lost twin brother Dru, after getting fired from the Anti-Villain League.",
-              842, 155, thumbnail="gru.jpg", age_restricted=False),
-
-        Movie("Minions: Rise of Gru", "water.mkv",
-              "In the 1970s, young Gru tries to join a group of supervillains, "
-              "called the Vicious 6 after they oust their leader",
-              1071, 141, thumbnail="minions.jpg", age_restricted=False),
-
-        Movie("Minions: Rise of Gru", "water.mkv",
-              "In the 1970s, young Gru tries to join a group of supervillains, "
-              "called the Vicious 6 after they oust their leader",
-              1071, 141, thumbnail="minions.jpg", age_restricted=False)
-    ]
-    screen.show_movies(movies)
-    screen.play_src(movies[0].filename, "films/")
-    screen.show()
-
-
-if __name__ == "__main__":
-    main()
