@@ -3,7 +3,7 @@
 # Sera usado como conexao com o módulo do :lib:‘manager’.
 from typing import List, Optional
 from interface.view import ViewFactory
-from movie import Movie, ScheduledMovie, CurrentMovie
+from content.movie import Movie, ScheduledMovie
 
 
 class MovieScheduler:
@@ -11,7 +11,7 @@ class MovieScheduler:
         self.scheduled_movies: List[Movie] = list()
 
     def add(self, name, filename, description, start_time, duration,
-            thumbnail, director, age_restricted):
+            thumbnail, director=None, age_restricted=None):
 
         new_movie = ScheduledMovie(name, filename, description, start_time, duration,
                                    thumbnail, director, age_restricted)
@@ -33,5 +33,4 @@ class MoviePlayer:
         self.cinema = cinema
 
     def play(self):
-        movie = self.cinema.play_src(self.movie.filename, "films/")
-        self.cinema.show()
+        self.cinema.play_src(self.movie.filename, "films/")
