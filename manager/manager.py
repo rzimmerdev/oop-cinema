@@ -8,7 +8,7 @@ class Ticket:
         self.movie = movie
         self.identifier = identifier
 
-    def get_movie_from_ticket(self) -> Movie:
+    def get_movie(self) -> Movie:
         return self.movie
 
 
@@ -20,7 +20,7 @@ class Cashier:
 
     def sell(self, price: float, movie: Movie) -> Ticket:
         ticket = Ticket(self.i, movie)
-        
+
         self.money_amount += price
         self.sold_tickets.append(ticket)
         self.i += 1
