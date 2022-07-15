@@ -11,17 +11,22 @@ class FranchiseFactory:
         self.name = name
         self.opening_year = opening_year
 
+        #instanciando a interface grafica
         self.facade = ViewFactory(self, name)
         
+        #instanciando o objeto responsavel pelo filmes
         self.movie_scheduler = MovieScheduler()
+
+        #instanciando a cashier, responsavel pelos tickets
         self.cashier = Cashier()
         self.current_movie = None
 
     def sell_ticket(self, identifier: int, price: float, movie_name: str,) -> Ticket:
-        '''recebe info e vende um ticket'''
+        '''vende um ticket'''
         return self.cashier.sell(identifier, price, self.movie_scheduler.get(movie_name))
 
     def play_movie(self, ticket: Ticket):
+        '''recebe um ticket e, se for validado com sucesso, da play no filme'''
         if self.cashier.validate(ticket):
             self.current_movie = ticket.movie
             self.facade.play_src(ticket.movie.filename, "films/")
@@ -39,6 +44,7 @@ class FranchiseFactory:
         self.facade.show_movies()
 
     def show(self):
+        '''abre a interface grafica'''
         self.facade.show()
 
 class PrivateFranchise(FranchiseFactory): 

@@ -1,6 +1,5 @@
 # Gerencia a compra e venda de ingressos dentro das diversas franquias
 
-from xmlrpc.client import Boolean
 from content.movie import Movie
 
 class Ticket:
@@ -9,6 +8,7 @@ class Ticket:
         self.identifier = identifier
 
     def get_movie_from_ticket(self) -> Movie:
+        '''recupera o filme do ticket'''
         return self.movie
 
 
@@ -18,6 +18,7 @@ class Cashier:
         self.sold_tickets = list()
 
     def sell(self, identifier: int, price: float, movie: Movie) -> Ticket:
+        '''vende um ticket e adiciona aos tickets vendidos'''
         ticket = Ticket(identifier, movie)
         
         self.money_amount += price
@@ -26,7 +27,7 @@ class Cashier:
         return ticket
 
     def validate(self, ticket) -> bool:
-        '''valida um ticket e remove ele da lista de tickets'''
+        '''valida um ticket e remove ele dos tickets vendidos'''
         if ticket in self.sold_tickets :
             self.sold_tickets.remove(ticket)
             return True
