@@ -1,6 +1,5 @@
 # Gerencia a compra e venda de ingressos dentro das diversas franquias
 
-from xmlrpc.client import Boolean
 from content.movie import Movie
 
 class Ticket:
@@ -13,9 +12,15 @@ class Ticket:
 
 
 class Cashier:
+
+    price_tags = [24.00, 35.99]
+
     def __init__(self):
         self.money_amount = 0.0
         self.sold_tickets = list()
+
+    def get_price(self, movie: Movie) -> float:
+        return self.price_tags[movie.age_restricted] * (movie.duration // 3)
 
     def sell(self, identifier: int, price: float, movie: Movie) -> Ticket:
         ticket = Ticket(identifier, movie)

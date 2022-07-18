@@ -1,31 +1,4 @@
-from typing import Optional
-
-
-class Movie:
-    def __init__(self, name: str, filename: str, description: str, start_time: int, duration: int,
-                 thumbnail: str = None, director: str = None, age_restricted: bool = None):
-        self.name = name
-        self.filename = filename
-        self.description = description
-        self.start_time = start_time
-        self.duration = duration
-        self.thumbnail = thumbnail
-        self.director = director
-        self.age_restricted = age_restricted
-        self.rating = None
-        self.__ratings = []
-
-    def add_rating(self, rate: int, comment: Optional[str] = None) -> Optional[float]:
-        if rate < 0 or rate > 5:
-            raise ValueError("Rate should be in range [0, 5].")
-
-        # Create a new rating
-        self.__ratings.append(Rating(rate, comment))
-        rates = [o.nome for o in self.__ratings]
-
-        # Compute new rates' mean
-        self.rating = sum(rates) / len(rates)
-        return None
+from typing import Optional, List
 
 
 class Rating:
@@ -40,12 +13,29 @@ class Rating:
         return f"({self.rate}.0)"
 
 
-class ScheduledMovie(Movie):
-    def __init__(self, name: str, filename: str, description: str, start_time: int, duration: int,
-                 thumbnail: str = None, director: str = None, age_restricted: bool = None):
-        super().__init__(name, filename, description, start_time, duration,
-                         thumbnail, director, age_restricted)
+class Movie:
+    def __init__(self, identifier: int, name: str, filename: str, description: str, start_time: int, duration: int,
+                 thumbnail: str = None, director: str = None, age_restricted: bool = False):
+        self.identifier = identifier
+        self.name = name
+        self.filename = filename
+        self.description = description
+        self.start_time = start_time
+        self.duration = duration
+        self.thumbnail = thumbnail
+        self.director = director
+        self.age_restricted = age_restricted
+        self.rating = 0.0
+        self.__ratings = []
 
+    def add_rating(self, rate: int, comment: Optional[str] = None):
+        if rate < 0 or rate > 5:
+            raise ValueError("Rate should be in range [0, 5].")
 
-class CurrentMovie(Movie):
-    pass
+        self.__ratings.append(Rating(rate, comment))
+        rates = [o.nome for o in self.__ratings]
+
+        self.rating = sum(rates) / len(rates)
+
+    def get_rating(self) -> List[Rating]:
+        return self.__ratings
