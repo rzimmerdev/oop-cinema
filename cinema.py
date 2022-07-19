@@ -1,33 +1,36 @@
+from interface.view import ViewFactory
 from manager.franchise import PrivateFranchise
 
 
 def main():
+    
     cinemark = PrivateFranchise("CineMark", 1999)
+    facade = ViewFactory(cinemark)
+    
 
-    cinemark.add_movie("Minions: Rise of Gru", "water.mkv",
-                       "In the 1970s, young Gru tries to join a group of supervillains, "
-                       "called the Vicious 6 after they oust their leader",
-                       1071, 141, thumbnail="minions.jpg", age_restricted=False)
+    cinemark.add_movie(0, "Agent 386", "agent_386.mkv",
+                       "Agent 386 is investigating a clue that leads him to a shady barbershop in Amsterdam. "
+                       "Little does he know that he is being tailed by mercenary Boris Kloris.",
+                       1071, 4, thumbnail="agent_386.jpg")
 
-    cinemark.add_movie("Despicable Me 3", "water.mkv",
-                       "Gru meets his long-lost twin brother Dru, after getting fired from the Anti-Villain League.",
-                       842, 155, thumbnail="gru.jpg", age_restricted=False)
+    cinemark.add_movie(1, "Box Assassin", "box_assassin.mkv",
+                       "A pizza delivery boy finds himself in the middle of a clash between a gangster boss "
+                       "and a legendary assassin who the boy has unknowingly delivered.",
+                       842, 3, thumbnail="box_assassin.jpg", age_restricted=False)
 
-    cinemark.add_movie("Minions: Rise of Gru", "water.mkv",
-                       "In the 1970s, young Gru tries to join a group of supervillains, "
-                       "called the Vicious 6 after they oust their leader",
-                       1071, 141, thumbnail="minions.jpg", age_restricted=False)
+    cinemark.add_movie(2, "Object at Rest", "object_rest.mkv",
+                       "The life of a stone as it travels over the course of millennia, "
+                       "facing nature's greatest obstacle: human civilization.",
+                       1071, 6, thumbnail="object_rest.jpg", age_restricted=False)
 
-    cinemark.add_movie("Minions: Rise of Gru", "water.mkv",
-                       "In the 1970s, young Gru tries to join a group of supervillains, "
-                       "called the Vicious 6 after they oust their leader",
-                       1071, 141, thumbnail="minions.jpg", age_restricted=False)
+    cinemark.add_movie(3, "Turning Point", "turning_point.mkv",
+                       "Animals and humans switched places. "
+                       "Now, animals are ruling the earth and humans are at the verge of extinction.",
+                       1071, 3, thumbnail="turning_point.jpg", age_restricted=False)
 
-    ticket = cinemark.sell_ticket(3429, 32.85, "Despicable Me 3")
-    cinemark.play_movie(ticket)
-    cinemark.facade.show()
+    facade.show_movies(cinemark.movie_scheduler.scheduled_movies)
 
-    cinemark.show()
+    facade.show()
 
 
 if __name__ == "__main__":

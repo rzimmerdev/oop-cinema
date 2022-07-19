@@ -82,13 +82,13 @@ class VideoPlayer:
         if not self._is_paused:
             self.play()
 
-    def show_tools(self, screen, file, root: tk.Tk):
+    def show_tools(self, screen, file):
         tool_frame = tk.Frame(screen)
         tool_frame.pack(fill=tk.X, side=tk.TOP)
 
         pause_btn = ttk.Button(tool_frame, text="Play/Pause", command=self.toggle)
         restart_btn = ttk.Button(tool_frame, text="Reiniciar", command=lambda: self.open(file))
-        exit_btn = ttk.Button(tool_frame, text="Exit", command=root.destroy)
+        exit_btn = ttk.Button(tool_frame, text="Exit", command=screen.destroy)
 
         tool_frame.columnconfigure(0, weight=1)
         tool_frame.columnconfigure(1, weight=1)
