@@ -27,6 +27,18 @@ class Movie:
         self.rating = sum(rates) / len(rates)
         return None
 
+    def export_movie(self) -> list:
+        return [
+            self.name,
+            self.filename,
+            self.description,
+            self.start_time,
+            self.duration,
+            self.thumbnail,
+            self.director,
+            self.age_restricted
+        ]
+
 
 class Rating:
     def __init__(self, rate: int, comment: Optional[str] = None):

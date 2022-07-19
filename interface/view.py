@@ -46,7 +46,7 @@ class ViewFactory:
         movie_player.play()
         screen.grid(row=0, column=1, sticky=tk.W)
 
-    def show_movies(self, movies: list[Movie] = None):
+    def show_movies(self, movies: list = None):
         pv = PosterView(self.root)
         pv.movies_to_poster(movies)
 
@@ -81,7 +81,7 @@ class PosterView(ttk.Frame):
         self.scroll_frame = ttk.Frame(posters_canvas)
         posters_canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
 
-    def movies_to_poster(self, movies: list[Movie]):
+    def movies_to_poster(self, movies: list):
         for row, movie in enumerate(movies):
             movie_frame = ttk.Frame(self.scroll_frame)
             thumbnail = ImageTk.PhotoImage(Image.open("posters/" + movie.thumbnail).resize((280, 280)))

@@ -17,6 +17,9 @@ class FranchiseFactory:
         self.cashier = Cashier()
         self.current_movie = None
 
+    def export_franchise(self):
+        return [self.name, self.opening_year]
+
     def sell_ticket(self, identifier: int, price: float, movie_name: str,) -> Ticket:
         '''recebe info e vende um ticket'''
         return self.cashier.sell(identifier, price, self.movie_scheduler.get(movie_name))
