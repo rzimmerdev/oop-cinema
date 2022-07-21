@@ -1,6 +1,6 @@
 # Gerencia a compra e venda de ingressos dentro das diversas franquias
-
 from content.movie import Movie
+
 
 class Ticket:
     def __init__(self, identifier: int, movie: Movie):
@@ -11,7 +11,7 @@ class Ticket:
         return self.movie
 
 
-class Cashier:
+class FranchiseManager:
 
     price_tags = [24.00, 35.99]
 
@@ -31,7 +31,6 @@ class Cashier:
         return ticket
 
     def validate(self, ticket) -> bool:
-        '''valida um ticket e remove ele da lista de tickets'''
         if ticket in self.sold_tickets :
             self.sold_tickets.remove(ticket)
             return True

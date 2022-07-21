@@ -30,7 +30,7 @@ class MovieScheduler:
         return self.scheduled_movies
 
 
-class MoviePlayer:
+class MovieManager:
     def __init__(self, movie: Movie, cinema: ViewFactory):
         self.movie = movie
         self.cinema = cinema
@@ -39,4 +39,5 @@ class MoviePlayer:
         self.movie = movie
 
     def play(self):
-        self.cinema.play_src(self.movie.filename, "files/films/")
+        self.cinema.show_src(self.movie.filename, "files/films/")
+

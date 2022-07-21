@@ -2,15 +2,15 @@ from typing import Optional, List
 
 
 class Rating:
-    def __init__(self, rate: int, comment: Optional[str] = None):
+    def __init__(self, rate: float, comment: Optional[str] = None):
         self.rate = rate
         self.comment = comment
 
     def __str__(self) -> str:
         if self.comment is None:
-            return f"({self.rate}.0) '{self.comment}'"
+            return f"({self.rate:.1f}) '{self.comment}'"
 
-        return f"({self.rate}.0)"
+        return f"({self.rate:.1f})"
 
 
 class Movie:
@@ -28,12 +28,12 @@ class Movie:
         self.rating = 0.0
         self.__ratings = []
 
-    def add_rating(self, rate: int, comment: Optional[str] = None):
+    def add_rating(self, rate: float, comment: Optional[str] = None):
         if rate < 0 or rate > 5:
             raise ValueError("Rate should be in range [0, 5].")
 
         self.__ratings.append(Rating(rate, comment))
-        rates = [o.nome for o in self.__ratings]
+        rates = [o.rate for o in self.__ratings]
 
         self.rating = sum(rates) / len(rates)
 

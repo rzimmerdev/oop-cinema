@@ -2,7 +2,7 @@
 # franquia guarda os filmes, o filme atual e os ingressos
 from content.generator import MovieScheduler
 from interface.view import ViewFactory
-from manager.manager import Cashier, Ticket
+from manager.manager import FranchiseManager, Ticket
 
 
 class FranchiseFactory:
@@ -10,32 +10,34 @@ class FranchiseFactory:
         self.name = name
         self.opening_year = opening_year
 
-        self.facade = ViewFactory(self, name)
-        
         self.movie_scheduler = MovieScheduler()
-        self.cashier = Cashier()
+        self.manager = FranchiseManager()
+        
+        self.facade = ViewFactory(self, self.movie_scheduler, self.manager, name)
+
         self.current_movie = None
 
     def sell_ticket(self, identifier: int, price: float):
-        '''recebe info e vende um ticket'''
-        ticket = self.cashier.sell(identifier, price, self.movie_scheduler.get(identifier))
+        ticket = self.manager.sell(identifier, price, self.movie_scheduler.get(identifier))
         self.play_movie(ticket)
 
+    def add_review(self, identifier: int, rate: float, comment: str):
+        self.movie_scheduler.get(identifier).add_rating(rate, comment)
+        self.facade.show_movies(self.movie_scheduler.scheduled_movies)
+
     def play_movie(self, ticket: Ticket):
-        if self.cashier.validate(ticket):
+        if self.manager.validate(ticket):
             self.current_movie = ticket.movie
-            self.facade.play_src(ticket.movie.filename, "files/films/")
+            self.facade.show_src(ticket.movie.filename, "files/films/")
             self.facade.show_review(ticket.movie)
         else:
             raise Exception("Invalid Ticket")
 
-    def add_movie(self, identifier, name, filename, description, start_time, duration, thumbnail, age_restricted) -> None:
-        '''adiciona um filme e atualiza a interface grafica'''
+    def add_movie(self, identifier, name, filename, description, start_time, duration, thumbnail, age_restricted=None) -> None:
         self.movie_scheduler.add(identifier, name, filename, description, start_time, duration, thumbnail, age_restricted)
         self.facade.show_movies(self.movie_scheduler.scheduled_movies)
-        
+
     def remove_movie(self, name: str) -> None:
-        '''remove um filme e atualiza a interface grafica'''
         self.movie_scheduler.remove(name)
         self.facade.show_movies()
 
