@@ -12,21 +12,36 @@ from content.movie import Movie, Rating
 from interface.player import VideoPlayer
 
 
+# TODO: Comment and make function documentations
+# TODO: Build unittesting file
 class ViewFactory:
-    def __init__(self, manager, franchise: str = None, background_path="files/background.jpeg"):
+    def __init__(self, manager, movie_manager, franchise_manager,
+                 franchise: str = "", background_path="files/background.jpg"):
         self.manager = manager
         self.franchise = franchise
+
+        self.movie_manager = movie_manager
+        self.franchise_manager = franchise_manager
+
         self.root = tk.Tk()
+        self.root.resizable(False, False)
+
         self.set_background(background_path)
         self.config_view()
-        self.root.resizable(False, False)
+
         self.canvas = None
+        self.posters = None
+        self.screen = None
+        self.reviews = None
 
     def config_view(self):
         self.root.geometry("1920x1080")
         self.root.columnconfigure(0, weight=1)
         self.root.columnconfigure(1, weight=2)
         self.root.columnconfigure(3, weight=1)
+        self.root.columnconfigure(4, weight=0)
+        leave = ttk.Button(text="Exit", command=self.root.destroy)
+        leave.grid(row=0, column=4, sticky=tk.NE)
         self.root.title(self.franchise)
         style = ttk.Style(self.root)
         style.theme_use("clam")
@@ -34,12 +49,8 @@ class ViewFactory:
     def show(self):
         self.root.mainloop()
 
-    def play_src(self, file: str, src_path: str):
-        screen = MovieView(self.root)
-        screen.play_src(file, src_path)
-
     def set_background(self, background_path):
-        width = self.root.winfo_screenwidth()
+        width = self.root.winfo_screenwidth() // 2
         height = self.root.winfo_screenheight()
 
         background_image = ImageTk.PhotoImage(Image.open(background_path).resize((width, height)))
@@ -48,28 +59,44 @@ class ViewFactory:
         background_label.lower()
         background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-    def show_review(self, movie):
-        reviews = ReviewView(self.root)
-        reviews.show_rating(movie)
+    def show_src(self, file: str, src_path: str):
+        if self.screen:
+            self.screen.destroy()
+        self.screen = MovieFrame(self.root)
+        self.screen.show(file, src_path)
 
     def show_movies(self, movies: list[Movie] = None):
-        pv = PosterView(self.root, self.manager)
-        pv.movies_to_poster(movies)
+        if self.posters:
+            self.posters.destroy()
+        self.posters = PosterFrame(self.root, self.manager)
+        self.posters.show(movies)
+
+    def show_review(self, movie):
+        if self.reviews:
+            self.reviews.destroy()
+        self.reviews = ReviewFrame(self.root, self.manager)
+        self.reviews.show(movie)
+        self.reviews.show_feedback(movie)
 
 
-class MovieView(ttk.Frame):
+class MovieFrame(ttk.Frame):
     def __init__(self, root):
         super().__init__(root)
         self.grid(row=0, column=1, sticky=tk.W)
+        self.movie_player = None
 
-    def play_src(self, file, src_path):
-        movie_player = VideoPlayer(self, src_path, fps=30)
-        movie_player.show_tools(self, file)
-        movie_player.open(file)
-        movie_player.play()
+    def destroy(self):
+        self.movie_player.destroy()
+        super().destroy()
+
+    def show(self, file, src_path):
+        self.movie_player = VideoPlayer(self, src_path, size=(960, 480))
+        self.movie_player.show_tools(self, file)
+        self.movie_player.open(file)
+        self.movie_player.play()
 
 
-class PosterView(ttk.Frame):
+class PosterFrame(ttk.Frame):
     def __init__(self, root, manager):
         super().__init__(root)
         self.manager = manager
@@ -87,53 +114,98 @@ class PosterView(ttk.Frame):
         self.scroll_frame = ttk.Frame(posters_canvas)
         posters_canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
 
-    def movies_to_poster(self, movies: list[Movie]):
+    def show(self, movies: list[Movie]):
         for row, movie in enumerate(movies):
-            movie_frame = ttk.Frame(self.scroll_frame)
-            thumbnail = ImageTk.PhotoImage(Image.open("files/films/" + movie.thumbnail).resize((280, 280)))
-            image_label = ttk.Label(movie_frame, image=thumbnail)
-            image_label.image = thumbnail
-            image_label.grid(row=0, column=0)
+            self.show_poster(row, movie)
 
-            name = ttk.Label(movie_frame, text=movie.name)
-            description = ttk.Label(movie_frame, text=movie.description, wraplength=280)
-            rating = ttk.Label(movie_frame, text=str(movie.rating) + "⋆")
-            time = ttk.Label(movie_frame, text=str(movie.duration // 60) + ":" + "{:02d}".format(movie.duration % 60))
-            buy = ttk.Button(movie_frame,
-                             text="Buy Ticket!", command=lambda i=movie.identifier: self.manager.sell_ticket(i, 34))
-            name.grid(row=1, column=0)
-            description.grid(row=2, column=0)
-            rating.grid(row=3, column=0)
-            time.grid(row=4, column=0)
-            buy.grid(row=5, column=0, pady=20)
+    def show_poster(self, row, movie):
+        movie_frame = ttk.Frame(self.scroll_frame)
+        thumbnail = ImageTk.PhotoImage(Image.open("files/films/" + movie.thumbnail).resize((280, 280)))
+        image_label = ttk.Label(movie_frame, image=thumbnail)
+        image_label.image = thumbnail
+        image_label.grid(row=0, column=0)
 
-            movie_frame.grid(row=row, column=0, pady=(0, 40))
+        name = ttk.Label(movie_frame, text=movie.name)
+        description = ttk.Label(movie_frame, text=movie.description, wraplength=280)
+        rating = ttk.Label(movie_frame, text=f"{movie.rating:.2f}⋆")
+        time = ttk.Label(movie_frame, text=str(movie.duration // 60) + ":" + "{:02d}".format(movie.duration % 60))
+        buy = ttk.Button(movie_frame,
+                         text="Buy Ticket!", command=lambda i=movie.identifier: self.manager.sell_ticket(i, 34))
+        name.grid(row=1, column=0)
+        description.grid(row=2, column=0)
+        rating.grid(row=3, column=0, pady=(10, 0))
+        time.grid(row=4, column=0)
+        buy.grid(row=5, column=0, pady=20)
+
+        movie_frame.grid(row=row, column=0, pady=(0, 40))
 
     def add_movie(self, identifier, name, filename, description, start_time, duration, thumbnail):
-        new_movie = Movie(identifier=7, )
+        # new_movie = Movie(identifier=7, )
 
-        return self.manager.add_movie(new_movie)
+        return self.manager.add_movie()
 
 
-class ReviewView(ttk.Frame):
-    def __init__(self, root):
+class ReviewFrame(ttk.Frame):
+    def __init__(self, root, manager):
         super().__init__(root)
-        self.grid(row=0, column=2, sticky=tk.W)
+        self.grid(row=0, column=2, sticky=tk.W, pady=(50, 20), padx=30)
         self.size()
+        self.manager = manager
 
-    def show_rating(self, movie):
-
+    def show(self, movie):
         title = ttk.Label(self, text=movie.name)
-        title.grid()
+        description = ttk.Label(self, text=movie.description, wraplength=280, justify=tk.CENTER)
+        rating = ttk.Label(self, text=f"Total rating: {movie.rating:.2f}⋆")
 
-        rating = ttk.Label(self, text=str(movie.rating) + "⋆")
-        rating.grid()
+        separator = ttk.Separator(self, orient='horizontal')
+
+        title.grid(pady=10)
+        description.grid()
+        rating.grid(pady=(20, 0))
+
+        separator.grid(row=3, column=0, columnspan=2)
 
         rating_frame = ttk.Frame(self)
 
-        for rating in movie.get_rating():
+        for row, rating in enumerate(movie.get_rating()):
             score = ttk.Label(rating_frame, text=str(rating.rate) + "⋆")
-            comment = ttk.Label(rating_frame, text=rating.comment)
+            comment = ttk.Label(rating_frame, text=rating.comment, wraplength=280)
 
-            score.grid()
-            comment.grid()
+            score.grid(row=row, column=0, padx=(10, 10))
+            comment.grid(row=row, column=1)
+
+        rating_frame.grid(pady=(5, 20))
+
+    def show_feedback(self, movie):
+        vcmd = (self.register(callback))
+
+        review_frame = ttk.Frame(self)
+
+        comment_label = tk.Label(review_frame, text="Comment")
+        score_label = tk.Label(review_frame, text="Score")
+
+        comment = tk.Entry(review_frame)
+        score = tk.Entry(review_frame, validate="key", validatecommand=(vcmd, '%P'))
+
+        comment_label.grid(row=0, column=0)
+        comment.grid(row=0, column=1)
+        score_label.grid(row=1, column=0)
+        score.grid(row=1, column=1)
+
+        confirm = tk.Button(review_frame, text="Send review",
+                            command=lambda: self.add_review(movie, int(score.get()), comment.get()))
+        confirm.grid(row=2, column=1)
+        review_frame.grid()
+
+    def add_review(self, movie, score, comment):
+        for widget in self.winfo_children():
+            widget.destroy()
+        self.manager.add_review(movie.identifier, score, comment)
+        self.show(movie)
+
+
+def callback(P):
+    if str.isdigit(P) or P == "":
+        return True
+    else:
+        return False
