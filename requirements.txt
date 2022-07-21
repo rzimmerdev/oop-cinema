@@ -1,3 +1,5 @@
 certifi==2022.6.15
-numpy==1.16.6
-Pillow==9.0.1
+numpy==1.23.1
+Pillow~=9.0.1
+ffpyplayer~=4.3.5
+opencv-python~=4.6.0.66
