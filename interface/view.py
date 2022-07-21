@@ -15,7 +15,7 @@ from interface.player import VideoPlayer
 # TODO: Comment and make function documentations
 # TODO: Build unittesting file
 class ViewFactory:
-    def __init__(self, manager, movie_manager, franchise_manager,
+    def __init__(self, manager, movie_manager=None, franchise_manager=None,
                  franchise: str = "", background_path="files/background.jpg"):
         self.manager = manager
         self.franchise = franchise
