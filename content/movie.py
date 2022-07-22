@@ -28,7 +28,15 @@ class Movie:
         self.rating = 0.0
         self.__ratings = []
 
-    def add_rating(self, rate: float, comment: Optional[str] = None):
+    def add_rating(self, rate: float, comment: Optional[str] = None) -> None:
+        """
+        Adds a new rating to the movie.
+
+        Keyword arguments:
+        rate -- integer in range [0, 5]
+        comment -- an optional comment regarding the rating
+        """
+
         if rate < 0 or rate > 5:
             raise ValueError("Rate should be in range [0, 5].")
 
@@ -38,4 +46,7 @@ class Movie:
         self.rating = sum(rates) / len(rates)
 
     def get_rating(self) -> List[Rating]:
+        """
+        Get a list of all the ratings
+        """
         return self.__ratings
