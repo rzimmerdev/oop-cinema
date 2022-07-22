@@ -6,22 +6,34 @@ from content.movie import Movie
 
 
 class MovieScheduler:
-    """
-    Scheduling movies.
-    """
     def __init__(self):
+        """Allows for managing a movie scheduler, where movie can be scheduled,
+        de-scheduled and programmed.
+        """
         self.scheduled_movies: List[Movie] = list()
 
     def add(self, movie: Movie) -> None:
-        """
-        Add a Movie to scheduler.
+        """Add an existing Movie object to the schedule.
+
+        Args:
+            movie: Movie object containing movie that will be added to schedule.
         """
         self.scheduled_movies.append(movie)
 
-    def new_movie(self, identifier, name, filename, description, start_time, duration,
-                  thumbnail, director=None, age_restricted=False) -> None:
-        """
-        Create a new Movie and add it to scheduler.
+    def new_movie(self, identifier: int, name: str, filename: str, description: str, start_time: int, duration: int,
+                  thumbnail: str, director: str = None, age_restricted: bool = False) -> None:
+        """Create a new Movie object and add it to schedule.
+
+        Args:
+            identifier: Movie object's unique ID
+            name: movie's title
+            filename: name of file containing movie's .mkv: files/films/<filename>
+            description: movie's description
+            start_time: time when movie will start playing in schedule (Unix).
+            duration: movie's duration in seconds.
+            thumbnail: name of file containing movie's thumbnail: files/films/<thumbnail>
+            director: movie director's name
+            age_restricted: true or false, indicating if movie has age restriction
         """
 
         new_movie = Movie(identifier, name, filename, description, start_time, duration,
@@ -29,14 +41,26 @@ class MovieScheduler:
         self.scheduled_movies.append(new_movie)
 
     def remove(self, name: str) -> None:
-        """ 
-        Remove a movie from scheduled movies.
+        """Remove a movie from scheduled movies.
+
+        Args:
+            name: movie's name.
         """
         self.scheduled_movies = [movie for movie in self.scheduled_movies if movie.name != name]
 
     def get(self, identifier: int = None, name: str = None) -> Union[List[Movie], Movie, None]:
-        """
-        Get a movie whose field matches given parameters.
+        """Get a movie whose field matches given parameters. 
+
+        Notes:
+            Only one of the args should be passed: identifier or name.
+
+        Args:
+            identifier: movie's unique identifier.
+            name: movie's name
+
+        Returns:
+            A movie, if any is found based on given parameters. Otherwise, returns
+            a list of every movie in scheduler.
         """
 
         if identifier is not None:
@@ -60,15 +84,16 @@ class MovieManager(MovieScheduler):
                      'thumbnail', 'director', 'age_restricted']
 
     def add_movie(self, movie: Movie) -> None:
-        """
-        Add a Movie to the manager.
+        """Add a Movie to the manager.
         """
         self.scheduled_movies.append(movie)
 
     @staticmethod
     def get_params(movie: Movie) -> dict:
-        """
-        Get a dictionary with all movie's parameters.
+        """Get all movie's parameters.
+
+        Returns:
+            A dictionary with every parameter labeled (JSON-like).
         """
         return {'identifier': movie.identifier, 'name': movie.name, 'filename': movie.filename,
                 'description': movie.description, 'start_time': movie.start_time, 'duration': movie.duration,
