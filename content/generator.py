@@ -2,7 +2,6 @@
 # como arquivo de video MP4, descricao, etc.
 # Sera usado como conexao com o módulo do :lib:‘manager’.
 from typing import List, Optional, Union
-from interface.view import ViewFactory
 from content.movie import Movie
 
 
@@ -30,14 +29,6 @@ class MovieScheduler:
         return self.scheduled_movies
 
 
-class MovieManager:
-    def __init__(self, movie: Movie, cinema: ViewFactory):
-        self.movie = movie
-        self.cinema = cinema
-
-    def update(self, movie: Movie):
-        self.movie = movie
-
-    def play(self):
-        self.cinema.show_src(self.movie.filename, "files/films/")
-
+class MovieManager(MovieScheduler):
+    def __init__(self):
+        super().__init__()

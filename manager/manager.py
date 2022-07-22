@@ -31,7 +31,7 @@ class FranchiseManager:
         return ticket
 
     def validate(self, ticket) -> bool:
-        if ticket in self.sold_tickets :
+        if ticket in self.sold_tickets:
             self.sold_tickets.remove(ticket)
             return True
         return False

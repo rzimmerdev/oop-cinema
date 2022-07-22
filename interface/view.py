@@ -8,14 +8,15 @@ from tkinter import ttk
 
 from PIL import Image, ImageTk
 
-from content.movie import Movie, Rating
+from content.movie import Movie
 from interface.player import VideoPlayer
 
+from content.generator import MovieManager
+from manager.manager import FranchiseManager
 
-# TODO: Comment and make function documentations
-# TODO: Build unittesting file
+
 class ViewFactory:
-    def __init__(self, manager, movie_manager=None, franchise_manager=None,
+    def __init__(self, manager, movie_manager: MovieManager = None, franchise_manager: FranchiseManager = None,
                  franchise: str = "", background_path="files/background.jpg"):
         self.manager = manager
         self.franchise = franchise
@@ -101,8 +102,13 @@ class PosterFrame(ttk.Frame):
         super().__init__(root)
         self.manager = manager
         self.grid(row=0, column=0, sticky=tk.W)
+        self.scroll_frame = None
 
-        posters_canvas = tk.Canvas(self, height=880)
+    def show(self, movies: list[Movie]):
+        title = tk.Label(self, text="Scheduled Movies", font=('Arial Black', 16, "bold"))
+        title.pack(pady=(20, 10))
+
+        posters_canvas = tk.Canvas(self, width=300, height=880)
         posters_canvas.pack(side=tk.RIGHT, fill=tk.BOTH, expand=1, padx=10)
 
         scroll = ttk.Scrollbar(self, orient="vertical", command=posters_canvas.yview)
@@ -110,11 +116,10 @@ class PosterFrame(ttk.Frame):
 
         posters_canvas.configure(yscrollcommand=scroll.set)
         posters_canvas.bind('<Configure>', lambda e: posters_canvas.configure(scrollregion=posters_canvas.bbox("all")))
-
         self.scroll_frame = ttk.Frame(posters_canvas)
+
         posters_canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
 
-    def show(self, movies: list[Movie]):
         for row, movie in enumerate(movies):
             self.show_poster(row, movie)
 
@@ -125,8 +130,8 @@ class PosterFrame(ttk.Frame):
         image_label.image = thumbnail
         image_label.grid(row=0, column=0)
 
-        name = ttk.Label(movie_frame, text=movie.name)
-        description = ttk.Label(movie_frame, text=movie.description, wraplength=280)
+        name = ttk.Label(movie_frame, text=movie.name, font=('Arial Black', 14, "bold"))
+        description = ttk.Label(movie_frame, text=movie.description, wraplength=280, font=('Arial Black', 11))
         rating = ttk.Label(movie_frame, text=f"{movie.rating:.2f}⋆")
         time = ttk.Label(movie_frame, text=str(movie.duration // 60) + ":" + "{:02d}".format(movie.duration % 60))
         buy = ttk.Button(movie_frame,
