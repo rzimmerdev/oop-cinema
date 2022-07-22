@@ -1,62 +1,39 @@
-# Cria backups em arquivos CSV das instancias do tipo :class:`movie` e :class:`franchise`.
-
-
-#from typing import Union
-
-
 import csv
-from content.movie import Movie, ScheduledMovie, CurrentMovie
-from manager.franchise import FranchiseFactory, PrivateFranchise, PublicFranchise
+from abc import abstractmethod
+
+
+class Manager:
+    def __init__(self):
+        self.keys = None
+
+    @abstractmethod
+    def get(self):
+        pass
+
+    @staticmethod
+    def get_params(val):
+        return val
+
+    def load_values(self, values):
+        return None
 
 
 class Backup:
-    def __init__(self, movies: Movie = None, franchises: FranchiseFactory = None):
-        self.movies = movies
-        self.franchises = franchises
+    def __init__(self, backup_path="files/backup"):
+        self.backup_path = backup_path
 
-        self.create_franchise_file()
-        self.create_movie_file()
+    def create(self, manager: Manager, filename):
 
-    def create_movie_file(self):
-        path = "data/"
-        filename = "movie_backup.csv"
-        
-        fields = ["Name", "Filename", "Description", "Start Time", "Duration",
-            "Thumbnail", "Director", "Age Restricted"]
+        values = [manager.get_params(movie) for movie in manager.get()]
+        keys = manager.keys
 
-        movie_list = []
-        for each in self.movies:
-            movie_list.append(each.export_movie())
+        with open(f'{self.backup_path}/{filename}', 'w', newline='') as output_file:
+            output = csv.DictWriter(output_file, keys)
+            output.writeheader()
+            output.writerows(values)
 
-        # Write to a file
-        with open(filename, 'w') as csvfile: 
-            # creating a csv writer object 
-            csv_writer = csv.writer(csvfile, delimiter=";") 
-                
-            # writing the fields 
-            csv_writer.writerow(fields) 
-                
-            # writing the data rows 
-            csv_writer.writerows(movie_list)
+    def load(self, manager: Manager, filename):
+        with open(f'{self.backup_path}/{filename}', 'r', newline='') as input_file:
+            values = list(csv.DictReader(input_file))
 
-    def create_franchise_file(self):
-        path = "data/"
-        filename = "franchise_backup.csv"
-        
-        fields = ["Name", "Opening Year"]
-        franchise_list = []
-        for each in self.franchises:
-            franchise_list.append(each.export_franchise())
-
-        # Write to a file
-        with open(filename, 'w') as csvfile: 
-            # creating a csv writer object 
-            csv_writer = csv.writer(csvfile, delimiter=";") 
-                
-            # writing the fields 
-            csv_writer.writerow(fields) 
-                
-            # writing the data rows 
-            csv_writer.writerows(franchise_list)
-
-
+            manager.load_values(values)
