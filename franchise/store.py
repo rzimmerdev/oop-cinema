@@ -7,6 +7,11 @@ class Ticket:
         self.movie = movie
 
     def get_movie_from_ticket(self) -> Movie:
+        """Get the movie from a ticket
+        
+        Returns:
+            (obj: Movie): movie
+        """
         return self.movie
 
 
@@ -18,9 +23,25 @@ class Cashier:
         self.sold_tickets = list()
 
     def get_price(self, movie: Movie) -> float:
+        """Get ticket price
+        
+        Args:
+            movie (obj: Movie): movie to get the price
+
+        Return:
+            float: ticket price
+        """
         return self.price_tags[movie.age_restricted] * (movie.duration / 100) / 2
 
     def sell(self, movie: Movie) -> Ticket:
+        """Sell a ticket to a movie and add it to the sold tickets
+        
+        Args:
+            movie (obj: Movie): movie
+        
+        Returns:
+            (obj: Ticket): sold ticket
+        """
         ticket = Ticket(movie)
 
         self.money_amount += self.get_price(movie)
@@ -28,7 +49,14 @@ class Cashier:
 
         return ticket
 
-    def validate(self, ticket) -> bool:
+    def validate(self, ticket: Ticket) -> bool:
+        """Validate a ticket and remove it from the sold tickets
+        
+        Args:
+            ticket (Ticket): ticket to validate
+        Returns:
+            bool: True if successful, False otherwise.
+        """
         if ticket in self.sold_tickets:
             self.sold_tickets.remove(ticket)
             return True
