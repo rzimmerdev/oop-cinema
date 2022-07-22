@@ -18,16 +18,39 @@ from franchise.store import Cashier
 class ViewFactory:
     def __init__(self, manager, movie_manager: MovieManager = None, cashier: Cashier = None,
                  franchise: str = "", background_path="files/background.jpg"):
+        """Shows a single franchise movie screen, given a desired movie manager to load posters and available
+        movies to be played.
+
+        Requires a cashier and a manager object to take care of the movies purchases, reviews and total profit count.
+
+        Args:
+            manager: FranchiseFactory object that manages the interface reference
+            movie_manager: Holds the movies that are currently in schedule to be played
+            cashier: Sells movie tickets and accounts for total profit during session
+            franchise: Franchise title to be displayed on the window bar
+            background_path: Path to the cinema background, can be changed between franchise instances
+
+        Example:
+            >>> # Inside a FranchiseFactory object, call
+            >>> self.movie_manager = MovieManager()
+            >>> self.cashier = Cashier()
+            >>> name = "CineMark - SP Morumbi"
+            >>> facade = ViewFactory(self, self.movie_manager, self.cashier, name)
+            <class 'interface.factory.ViewFactory'>
+
+        Notes:
+            This class should not be instantiated on its own, as it requires a manager object
+            to account for new movies added, reviews and tickets sales
+        """
         self.manager = manager
-        self.franchise = franchise
-
         self.movie_manager = movie_manager
-        self.franchise_manager = cashier
+        self.cashier = cashier
 
-        self.background_path = background_path
         self.root = tk.Tk()
         self.root.resizable(False, False)
 
+        self.title = franchise
+        self.background_path = background_path
         self.set_background()
         self.config_view()
 
@@ -36,22 +59,42 @@ class ViewFactory:
         self.screen = None
         self.reviews = None
 
-    def config_view(self):
-        self.root.geometry("1920x1080")
-        self.root.columnconfigure(0, weight=1)
-        self.root.columnconfigure(1, weight=2)
-        self.root.columnconfigure(3, weight=1)
-        self.root.columnconfigure(4, weight=0)
+    def config_view(self, size="1920x1080", stylesheet="clam"):
+        """Configures interface window size, title and column order, as well as OS-independent window style"""
+        window = self.root
+        window.title(self.title)
+        window.geometry(size)
+        window.columnconfigure(0, weight=1)
+        window.columnconfigure(1, weight=2)
+        window.columnconfigure(3, weight=1)
+        window.columnconfigure(4, weight=0)
+
         leave = ttk.Button(text="Exit", command=self.root.destroy)
         leave.grid(row=0, column=4, sticky=tk.NE)
-        self.root.title(self.franchise)
+
+        # Set window style to tkinter available styles
         style = ttk.Style(self.root)
-        style.theme_use("clam")
+        style.theme_use(stylesheet)
 
     def show(self):
+        """Main loop function, displays Interface window, as well as begins tkinter root.mainloop() function,
+        freezing program until further exit conditions are called.
+
+        Use the implemented tkinter :func:`root.after()` to execute parallel processing tasks, such as showing
+        any desired video players.
+        """
         self.root.mainloop()
 
-    def set_background(self):
+    def set_background(self, background_path: str = ""):
+        """Defines and places the default background image relative to the current interface instance.
+        Background location can be changed by either setting the initial background variable or inserting a new path.
+
+        Args:
+            background_path: New path variable to switch with the current interface background
+        """
+        if background_path != "":
+            self.background_path = background_path
+
         width = self.root.winfo_screenwidth() // 2
         height = self.root.winfo_screenheight()
 
@@ -62,18 +105,44 @@ class ViewFactory:
         background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
     def show_src(self, file: str, src_path: str):
+        """Shows a video source to the cinema screen, given an input stream file, as well as its directory path.
+
+        Args:
+            file: Filename from which to read stream
+            src_path: Directory path to the desired file stream
+
+        Examples:
+            >>> file = "agent_386.mkv"
+            >>> src_path = "files/films"
+            >>> self.show_src(file, src_path)
+        """
         if self.screen:
             self.screen.destroy()
+
         self.screen = MovieFrame(self.root)
         self.screen.show(file, src_path)
 
     def show_movies(self, movies: list[Movie] = None):
+        """Shows a list of movies as a poster window, sticked to the left of the cinema screen. For each movie,
+        show an individual poster containing basic movie information and ticket selling button.
+
+        Args:
+            movies: List of movies to transform into a PosterFrame object
+        """
         if self.posters:
             self.posters.destroy()
-        self.posters = PosterFrame(self.root, self.manager)
+        self.posters = PosterFrame(self.root, self.manager, self.cashier)
         self.posters.show(movies)
 
     def show_review(self, movie):
+        """Shows a single movie list of reviews as a review window, sticked to the right of the cinema screen.
+        Display total review score, and for each individual review display related comment.
+
+        Also shows a "Leave your review" form for users interested in leaving a review.
+
+        Args:
+            movie: Movie from which to take reviews to be shown to ReviewFrame object
+        """
         if self.reviews:
             self.reviews.destroy()
         self.reviews = ReviewFrame(self.root, self.manager)
@@ -83,6 +152,13 @@ class ViewFactory:
 
 class MovieFrame(ttk.Frame):
     def __init__(self, root):
+        """Project a movie player to the desired root position, with assigned video player toolbar.
+
+        Instance can be killed by calling the destroy method.
+
+        Args:
+            root: Where to fix the frame object to.
+        """
         super().__init__(root)
         self.grid(row=0, column=1, sticky=tk.W)
         self.movie_player = None
@@ -99,9 +175,18 @@ class MovieFrame(ttk.Frame):
 
 
 class PosterFrame(ttk.Frame):
-    def __init__(self, root, manager):
+    def __init__(self, root, manager, cashier):
+        """Project a list of movie posters to the desired root position,
+        as well as buttons to buy individual movie tickets.
+
+        Instance can be killed by calling the destroy method.
+
+        Args:
+            root: Where to fix the frame object to.
+        """
         super().__init__(root)
         self.manager = manager
+        self.cashier = cashier
         self.grid(row=0, column=0, sticky=tk.W)
         self.scroll_frame = None
 
@@ -133,26 +218,30 @@ class PosterFrame(ttk.Frame):
 
         name = ttk.Label(movie_frame, text=movie.name, font=('Arial Black', 14, "bold"))
         description = ttk.Label(movie_frame, text=movie.description, wraplength=280, font=('Arial Black', 11))
-        rating = ttk.Label(movie_frame, text=f"{movie.rating:.2f}⋆")
-        time = ttk.Label(movie_frame, text=str(movie.duration // 60) + ":" + "{:02d}".format(movie.duration % 60))
+        price = ttk.Label(movie_frame, text="Ticket price: R$ {:.2f}".format(self.cashier.get_price(movie)))
+        rating = ttk.Label(movie_frame, text="Rating: {:.2f}⋆".format(movie.rating))
+        time = ttk.Label(movie_frame, text="Duration: {}:{:02d}".format(movie.duration // 60, movie.duration % 60))
         buy = ttk.Button(movie_frame,
-                         text="Buy Ticket!", command=lambda i=movie.identifier: self.manager.sell_ticket(i, 34))
+                         text="Buy Ticket!", command=lambda i=movie.identifier: self.manager.sell_ticket(i))
         name.grid(row=1, column=0)
         description.grid(row=2, column=0)
         rating.grid(row=3, column=0, pady=(10, 0))
         time.grid(row=4, column=0)
-        buy.grid(row=5, column=0, pady=20)
+        buy.grid(row=5, column=0, pady=(20, 0))
+        price.grid(row=6, column=0)
 
         movie_frame.grid(row=row, column=0, pady=(0, 40))
-
-    def add_movie(self, identifier, name, filename, description, start_time, duration, thumbnail):
-        # new_movie = Movie(identifier=7, )
-
-        return self.manager.add_movie()
 
 
 class ReviewFrame(ttk.Frame):
     def __init__(self, root, manager):
+        """Project a list of movie reviews to the desired root position, and a review form for the user.
+
+        Instance can be killed by calling the destroy method.
+
+        Args:
+            root: Where to fix the frame object to.
+        """
         super().__init__(root)
         self.grid(row=0, column=2, sticky=tk.W, pady=(50, 20), padx=30)
         self.size()
@@ -183,7 +272,7 @@ class ReviewFrame(ttk.Frame):
         rating_frame.grid(pady=(5, 20))
 
     def show_feedback(self, movie):
-        vcmd = (self.register(callback))
+        vcmd = (self.register(self.callback))
 
         review_frame = ttk.Frame(self)
 
@@ -209,9 +298,9 @@ class ReviewFrame(ttk.Frame):
         self.manager.add_review(movie.identifier, score, comment)
         self.show(movie)
 
-
-def callback(P):
-    if str.isdigit(P) or P == "":
-        return True
-    else:
-        return False
+    @staticmethod
+    def callback(P):
+        if str.isdigit(P) or P == "":
+            return True
+        else:
+            return False

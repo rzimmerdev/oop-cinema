@@ -1,6 +1,25 @@
 from database.backup import Backup
-from franchise.factory import FranchiseFactory, PrivateFranchise
+from franchise.factory import FranchiseFactory
 from franchise.generator import FranchiseManager
+
+
+def main():
+    backup = Backup()
+
+    cinemark = FranchiseManager()
+
+    backup.load(cinemark, "franchise.csv")
+    backup.load(cinemark.get(0).movie_manager, "movies.csv")
+
+    cinemark.get(0).show()
+
+    profit = cinemark.get(0).cashier.money_amount
+
+    print(f"Total profit for this session: R$ {profit:.2f}")
+
+    for franchise in cinemark.get():
+        backup.create(franchise.movie_manager, "movies.csv")
+    backup.create(cinemark, "franchise.csv")
 
 
 def generate_mockup_movies(franchise: FranchiseFactory):
@@ -17,12 +36,12 @@ def generate_mockup_movies(franchise: FranchiseFactory):
     franchise.add_movie(2, "Object at Rest", "object_rest.mkv",
                         "The life of a stone as it travels over the course of millennia, "
                         "facing nature's greatest obstacle: human civilization.",
-                        1071, 354, thumbnail="object_rest.jpg", age_restricted=False)
+                        1071, 354, thumbnail="object_rest.jpg")
 
     franchise.add_movie(3, "Turning Point", "turning_point.mkv",
                         "Animals and humans switched places. "
                         "Now, animals are ruling the earth and humans are at the verge of extinction.",
-                        1071, 208, thumbnail="turning_point.jpg", age_restricted=False)
+                        1071, 208, thumbnail="turning_point.jpg")
 
     franchise.add_review(0, 5, "Perfect!")
     franchise.add_review(1, 4, "Very good.")
@@ -31,20 +50,6 @@ def generate_mockup_movies(franchise: FranchiseFactory):
     franchise.add_review(2, 3, "Too boring, wouldn't watch again...")
     franchise.add_review(3, 5, "Very wild and bold movie.")
     franchise.add_review(3, 2, "I didn't understand nothing!")
-
-
-def main():
-    backup = Backup()
-
-    cinemark = FranchiseManager()
-
-    backup.load(cinemark, "franchise.csv")
-    backup.load(cinemark.get(0).movie_manager, "movies.csv")
-    cinemark.get(0).show()
-
-    for franchise in cinemark.get():
-        backup.create(franchise.movie_manager, "movies.csv")
-    backup.create(cinemark, "franchise.csv")
 
 
 if __name__ == "__main__":

@@ -19,7 +19,7 @@ class MovieScheduler:
         self.scheduled_movies.append(movie)
 
     def new_movie(self, identifier, name, filename, description, start_time, duration,
-                  thumbnail, director=None, age_restricted=None) -> None:
+                  thumbnail, director=None, age_restricted=False) -> None:
         """
         Create a new Movie and add it to scheduler.
         """
@@ -81,6 +81,8 @@ class MovieManager(MovieScheduler):
             for key in params:
                 if key in ['identifier', 'start_time', 'duration']:
                     setattr(movie, key, int(params[key]))
+                elif key == 'age_restricted':
+                    setattr(movie, key, bool(params[key]))
                 else:
                     setattr(movie, key, params[key])
 

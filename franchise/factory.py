@@ -14,11 +14,10 @@ class FranchiseFactory:
         self.cashier = Cashier()
 
         self.facade = ViewFactory(self, self.movie_manager, self.cashier, name)
-
         self.current_movie = None
 
-    def sell_ticket(self, identifier: int, price: float):
-        ticket = self.cashier.sell(identifier, price, self.movie_manager.get(identifier))
+    def sell_ticket(self, identifier: int):
+        ticket = self.cashier.sell(self.movie_manager.get(identifier))
         self.play_movie(ticket)
 
     def add_review(self, identifier: int, rate: float, comment: str):
@@ -34,7 +33,7 @@ class FranchiseFactory:
             raise Exception("Invalid Ticket")
 
     def add_movie(self, identifier, name, filename, description, start_time, duration,
-                  thumbnail, age_restricted=None) -> None:
+                  thumbnail, age_restricted=False) -> None:
         self.movie_manager.new_movie(identifier, name, filename, description, start_time, duration,
                                      thumbnail, age_restricted)
         self.facade.show_movies(self.movie_manager.get())

@@ -3,9 +3,8 @@ from content.movie import Movie
 
 
 class Ticket:
-    def __init__(self, identifier: int, movie: Movie):
+    def __init__(self, movie: Movie):
         self.movie = movie
-        self.identifier = identifier
 
     def get_movie_from_ticket(self) -> Movie:
         return self.movie
@@ -19,12 +18,12 @@ class Cashier:
         self.sold_tickets = list()
 
     def get_price(self, movie: Movie) -> float:
-        return self.price_tags[movie.age_restricted] * (movie.duration // 3)
+        return self.price_tags[movie.age_restricted] * (movie.duration / 100) / 2
 
-    def sell(self, identifier: int, price: float, movie: Movie) -> Ticket:
-        ticket = Ticket(identifier, movie)
+    def sell(self, movie: Movie) -> Ticket:
+        ticket = Ticket(movie)
 
-        self.money_amount += price
+        self.money_amount += self.get_price(movie)
         self.sold_tickets.append(ticket)
 
         return ticket
