@@ -13,6 +13,10 @@ Jhonathan Oliveira Alves, ********\
 Bruno Germano do Nascimento, ********\
 Pedro Rossi Silva Rodrigues, ********
 
+Preview do aplicativo:
+
+![Preview](https://github.com/rzimmerdev/oop-cinema/blob/95aaef13b624dcc75dcad17de4d5533df64246b0/files/preview.png)
+
 ## 1. Aplicação
 >Área: Visualização de vídeos e gestão de tarefas agendadas
 
