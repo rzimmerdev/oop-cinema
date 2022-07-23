@@ -95,7 +95,7 @@ class ViewFactory:
         if background_path != "":
             self.background_path = background_path
 
-        width = self.root.winfo_screenwidth() // 2
+        width = self.root.winfo_screenwidth()
         height = self.root.winfo_screenheight()
 
         background_image = ImageTk.PhotoImage(Image.open(self.background_path).resize((width, height)))
